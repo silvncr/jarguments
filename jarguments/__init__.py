@@ -2,31 +2,63 @@
 Providing a straightforward way to create command-line arguments.
 '''
 
+
 # imports
 from argparse import Action, ArgumentParser, Namespace
 from typing import Any, Optional, Type, Union
+
 
 # module info
 __author__ = 'silvncr'
 __license__ = 'MIT'
 __module_name__ = 'jarguments'
 __python_version__ = '3.6'
-__version__ = '0.0.1'
+__version__ = '0.1.0'
 
 
-# base argument
+# parse argument name
+def parse_argument_name(name: str) -> Optional[str]:
+	'''
+	Used to parse an argument name from a string.
+	'''
+	for i in ['--', '-', '/']:
+		if name.startswith(i):
+			name = name[len(i):]
+	_name = name = name.strip().lower().replace(' ', '-').replace('_', '-')
+	for char in _name:
+		if not char.isalnum() and char not in ['-', '_']:
+			name = name.replace(char, '')
+	return name or None
+
+
+# base argument class
 class JArgument:
+	'''
+	Base argument class.
+	'''
 	def __init__(
 		self,
 		name: str,
-		type: Type[Union[bool, str]],
+		type: Type[Union[bool, int, str]],
 		default: Union[Any, Optional[bool]] = None,
 		short_name: Optional[str] = None,
 		multiple: Optional[bool] = False,
 		help: Optional[str] = None,
 	):
-		self.name = name
-		self.short_name = short_name or None
+		if not name:
+			raise ValueError(f'invalid argument name: "{name}"; \
+					must not be empty')
+		if not name[0].isalpha():
+			raise ValueError(f'invalid argument name: "{name}"; \
+					must start with a letter')
+		elif name:
+			if _name := parse_argument_name(name):
+				self.name = _name
+				self.python_name = _name.replace('-', '_')
+		else:
+			raise ValueError(f'invalid argument name: "{name}"; \
+					an error occured while processing the name')
+		self.short_name = parse_argument_name(short_name) if short_name else None
 		self.type = type
 		self.default = default
 		self.required = default is None
@@ -42,6 +74,9 @@ class JArgument:
 
 # boolean argument
 class JBool(JArgument):
+	'''
+	Boolean argument class. Extends `JArgument`.
+	'''
 	def __init__(
 		self,
 		name: str,
@@ -59,8 +94,33 @@ class JBool(JArgument):
 		)
 
 
+# integer argument
+class JInt(JArgument):
+	'''
+	Integer argument class. Extends `JArgument`.
+	'''
+	def __init__(
+		self,
+		name: str,
+		short_name: Optional[str] = None,
+		default: Optional[int] = None,
+		help: Optional[str] = None,
+	):
+		super().__init__(
+			name,
+			int,
+			default,
+			short_name or None,
+			False,
+			help,
+		)
+
+
 # string argument
 class JStr(JArgument):
+	'''
+	String argument class. Extends `JArgument`.
+	'''
 	def __init__(
 		self,
 		name: str,
@@ -78,8 +138,43 @@ class JStr(JArgument):
 		)
 
 
-# boolean argument parser
-class JBooleanAction(Action):
+# base argument action
+class JAction(Action):
+	'''
+	Base argument parser.
+	'''
+	def __init__(
+		self,
+		option_strings,
+		dest,
+		nargs=None,
+		const=None,
+		default=None,
+		type=None,
+		choices=None,
+		required=False,
+		help=None,
+		metavar=None,
+	):
+		super(JAction, self).__init__(
+			option_strings,
+			dest,
+			nargs=nargs,
+			const=const,
+			default=default,
+			type=type,
+			choices=choices,
+			required=required,
+			help=help,
+			metavar=metavar,
+		)
+
+
+# boolean argument action
+class JBoolAction(JAction):
+	'''
+	Boolean argument parser. Extends `JAction`.
+	'''
 	def __init__(
 		self,
 		option_strings,
@@ -93,13 +188,13 @@ class JBooleanAction(Action):
 		help=None,
 		metavar=None,
 	):
-		super(JBooleanAction, self).__init__(
+		super(JBoolAction, self).__init__(
 			option_strings,
 			dest,
 			nargs=nargs,
-			const=const,
+			const=const, # type: ignore
 			default=default,
-			type=type,
+			type=type, # type: ignore
 			choices=choices,
 			required=required,
 			help=help,
@@ -122,21 +217,56 @@ class JBooleanAction(Action):
 		)
 
 
-# base parser
+# integer argument action
+class JIntAction(JAction):
+	'''
+	Integer argument parser. Extends `JAction`.
+	'''
+	def __call__(self, parser, namespace, values, option_string=None):
+		try:
+			setattr(namespace, self.dest, int(str(values)))
+		except ValueError:
+			parser.error(f"Invalid integer value: {values}")
+
+
+# string argument action
+class JStrAction(JAction):
+	'''
+	String argument parser. Extends `JAction`.
+	'''
+	def __call__(self, parser, namespace, values, option_string=None):
+		setattr(namespace, self.dest, str(values))
+
+
+# parser
 class JParser(ArgumentParser):
+	'''
+	Parser for instances of `JArgument` and its extensions.
+	'''
 	def __init__(self, *args: JArgument):
 		super().__init__()
 		for arg in args:
 			args_dict = {
-				'name': (f'--{arg.name}',),
 				'default': arg.default,
+				'dest': arg.python_name,
 				'help': arg.help,
 			}
 			if arg.type == bool:
 				args_dict = {
 					**args_dict, **{
-						'action': JBooleanAction,
-						'dest': arg.name,
+						'action': JBoolAction,
+					}
+				}
+			elif arg.type == int:
+				args_dict = {
+					**args_dict, **{
+						'action': JIntAction,
+					}
+				}
+			elif arg.type == str:
+				args_dict = {
+					**args_dict, **{
+						'action': JStrAction,
 					}
 				}
 			else:
@@ -148,8 +278,27 @@ class JParser(ArgumentParser):
 					}
 				}
 			if arg.short_name:
-				args_dict['name'] = (f'--{arg.name}', f'-{arg.short_name}')
+				args_dict = {
+					**args_dict, **{
+						'name': (f'--{arg.name}', f'-{arg.short_name}'),
+					}
+				}
+			else:
+				args_dict = {
+					**args_dict, **{
+						'name': (f'--{arg.name}',),
+					}
+				}
 			self.add_argument(*args_dict.pop('name'), **args_dict)
+
+	# parse arguments
+	def parse_args(self, *args, **kwargs) -> Namespace:
+		namespace = super().parse_args(*args, **kwargs)
+		args_dict = vars(namespace)
+		args_obj = Namespace()
+		for python_name, value in args_dict.items():
+			setattr(args_obj, python_name, value)
+		return args_obj
 
 	# return parsed arguments
 	def __new__(cls, *args: JArgument) -> Namespace:

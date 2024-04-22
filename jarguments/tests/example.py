@@ -1,9 +1,11 @@
-from jarguments import JParser, JBool, JStr
+import jarguments as j
 
-args = JParser(
-	JBool('show_text', help='determines whether "text" is shown'),
-	JStr('text'),
+args = j.JParser(
+    j.JBool('show-text', help='determines whether "text" is shown'),
+    j.JInt('number', default=1),
+    j.JArgument('text', type=str, multiple=True),
 )
 
 if args.show_text:
-	print(args.text)
+    for _ in range(args.number):
+        print(args.text)
