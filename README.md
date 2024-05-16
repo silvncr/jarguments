@@ -3,15 +3,17 @@
 
 simplifying args jargon
 
-![[license](LICENSE)](https://img.shields.io/github/license/silvncr/jarguments)
-![[publish status](https://github.com/silvncr/jarguments/actions/workflows/python-publish.yml)](https://img.shields.io/github/actions/workflow/status/silvncr/jarguments/python-publish.yml)
-![[latest release](https://github.com/silvncr/jarguments/releases/latest)](https://img.shields.io/github/v/release/silvncr/jarguments)
+![version](https://img.shields.io/pypi/v/jarguments)
+![status](https://img.shields.io/github/actions/workflow/status/silvncr/jarguments/python-publish.yml)
+![downloads](https://img.shields.io/pypi/dm/jarguments)
 
 ## Summary
 
-Providing a straightforward way to create command-line arguments.
+Provides a straightforward way to create command line arguments.
 
-> Works on Python 3.6 and above. Tested on Windows 10.
+- :snake: Supports Python 3.8 and above. Tested on Windows 10.
+- :warning: This project is still in development. Contributions are welcome!
+- :star: The simplest way to show your support is to leave a star!
 
 ## Contents
 
@@ -19,34 +21,37 @@ Providing a straightforward way to create command-line arguments.
 - [Contents](#contents)
 - [Installation](#installation)
 - [Usage](#usage)
-  - [Library](#library)
-  - [Command-line](#command-line)
 
 ## Installation
 
 ```sh
-pip install jarguments
+python -m pip install --upgrade jarguments
 ```
 
 ## Usage
-
-### Library
 
 There are three steps to using the jarguments library:
 
 1. Import the jarguments library.
 
     ```py
-    import jarguments as j
+    from jarguments import create, parse
     ```
 
 2. Provide your arguments with jarguments' classes.
 
     ```py
-    args = j.JParser(
-      j.JBool('show-text', help='determines whether "text" is shown'),
-      j.JInt('number', default=1),
-      j.JArgument('text', type=str, multiple=True),
+    # argument parser
+    args = parse.JParser(
+
+      # boolean argument
+      create.JBool('show-text', helpstring='determines whether "text" is shown'),
+
+      # integer argument
+      create.JInt('number', default=1),
+
+      # string argument
+      create.JStr('text'),
     )
     ```
 
@@ -58,14 +63,12 @@ There are three steps to using the jarguments library:
         print(args.text)
     ```
 
-### Command-line
+Now it works just like any other command line application.
 
-- Now you can run your script with arguments:
-
-    ```sh
-    $ python example.py --show-text --text "hello" "world"
-    ["hello", "world"]
-    ```
+  ```sh
+  $ python example.py --show-text --text "hello" "world"
+  ["hello", "world"]
+  ```
 
 - Arguments without a default value are required. If you don't provide them, the script will raise an error:
 
@@ -74,7 +77,7 @@ There are three steps to using the jarguments library:
     error: the following arguments are required: --text
     ```
 
-- If you want to see help messages, run your script with the `-h` or `--help` flag:
+- The `--help`/`-h` flag displays help messages:
 
     ```sh
     $ python example.py -h
