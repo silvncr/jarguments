@@ -12,8 +12,8 @@ simplifying args jargon
 Provides a straightforward way to create command line arguments.
 
 - :snake: Supports Python 3.8 and above. Tested on Windows 10.
-- :warning: This project is still in development. Contributions are welcome!
-- :star: The simplest way to show your support is to leave a star!
+- :construction: This project is still in development. Contributions are welcome!
+- :star: Show your support by leaving a star!
 
 ## Contents
 
