@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from argparse import Action, Namespace
-from typing import TYPE_CHECKING, Any, Iterable, Self, Sequence
+from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 if TYPE_CHECKING:
 	try:
@@ -99,7 +99,7 @@ class JBoolAction(JAction):
 
 	# parse boolean argument
 	def __call__(
-		self: Self,
+		self: JBoolAction,
 		namespace: Namespace,
 		values: str | Sequence[Any] | None,
 	) -> None:
@@ -152,7 +152,7 @@ class JIntAction(JAction):
 
 	# parse integer argument
 	def __call__(
-		self: Self,
+		self: JIntAction,
 		parser: JParser,
 		namespace: Namespace,
 		values: str | Sequence[Any] | None,

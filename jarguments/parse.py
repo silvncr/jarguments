@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser, Namespace
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING
 
 try:
 	from .handle import JBoolAction, JIntAction, JStrAction
@@ -74,7 +74,7 @@ class JParser(ArgumentParser):
 
 	# parse arguments
 	def parse_args(
-		self: Self,
+		self: JParser,
 		*args: JArgument,
 		**kwargs: JArgument,
 	) -> Namespace:
@@ -90,7 +90,7 @@ class JParser(ArgumentParser):
 
 	# return parsed arguments
 	def __new__(
-		cls: type[Self],
+		cls: ...,
 		*args: JArgument,
 	) -> Namespace:
 		'Parses arguments and returns the result.'

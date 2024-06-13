@@ -12,5 +12,4 @@ except ImportError:
 __author__ = 'silvncr'
 __license__ = 'MIT'
 __module_name__ = 'jarguments'
-__python_version__ = '3.8'
-__version__ = '0.2.0'
+__version__ = '0.2.1'
