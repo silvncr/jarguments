@@ -7,6 +7,13 @@ simplifying args jargon
 ![status](https://img.shields.io/github/actions/workflow/status/silvncr/jarguments/python-publish.yml)
 ![downloads](https://img.shields.io/pypi/dm/jarguments)
 
+![license](https://img.shields.io/github/license/silvncr/jarguments)
+![format](https://img.shields.io/pypi/format/jarguments)
+![pyversions](https://img.shields.io/pypi/pyversions/jarguments)
+
+![repo-size](https://img.shields.io/github/repo-size/silvncr/jarguments)
+![code-size](https://img.shields.io/github/languages/code-size/silvncr/jarguments)
+
 ## Summary
 
 Provides a straightforward way to create command line arguments.

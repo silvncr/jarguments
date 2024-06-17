@@ -8,8 +8,7 @@ except ImportError:
 	import parse
 
 
-# metadata
 __author__ = 'silvncr'
 __license__ = 'MIT'
-__module_name__ = 'jarguments'
+__module__ = 'jarguments'
 __version__ = '0.2.1'
